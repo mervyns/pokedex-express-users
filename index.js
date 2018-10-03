@@ -1,20 +1,10 @@
-/**
- * To-do for homework on 28 Jun 2018
- * =================================
- * 1. Create the relevant tables.sql file
- * 2. New routes for user-creation
- * 3. Change the pokemon form to add an input for user id such that the pokemon belongs to the user with that id
- * 4. (FURTHER) Add a drop-down menu of all users on the pokemon form
- * 5. (FURTHER) Add a types table and a pokemon-types table in your database, and create a seed.sql file inserting relevant data for these 2 tables. Note that a pokemon can have many types, and a type can have many pokemons.
- */
-
 const express = require('express');
 const methodOverride = require('method-override');
 const pg = require('pg');
 
 // Initialise postgres client
 const config = {
-  user: 'akira',
+  user: 'mervyn',
   host: '127.0.0.1',
   database: 'pokemons',
   port: 5432,
@@ -91,12 +81,44 @@ const getPokemon = (request, response) => {
     }
   });
 }
+// Catch Pokemon
+const catchPokemon = (req,res) => {
+    let params = req.body;
+    const queryString = 'SELECT * from users WHERE id= ' + req.params.id +';';
+
+    pool.query(queryString, (err, queryResult) => {
+        if (err) {
+            console.log('query error:', err.stack);
+        } else {
+            console.log('query result:', queryResult);
+            // Redirect to Pokemon Page
+            console.log(queryResult.rows)
+            res.render('users/catchpokemon', {user: queryResult.rows[0]})
+        }
+    })
+}
+
+const postCatchPokemon = (req, res) => {
+    let params = req.body;
+    const queryString = 'INSERT INTO users(pokemon_id) VALUES($1) WHERE id=($2)'
+    const values = [params.pokemonId, params.userId]
+
+    pool.query(queryString, values, (err, result) => {
+        if (err) {
+            console.log('query error:', err.stack);
+        } else {
+            console.log('query result:', result);
+
+            res.redirect('/')
+        }
+    })
+}
 
 const postPokemon = (request, response) => {
   let params = request.body;
-  
-  const queryString = 'INSERT INTO pokemon(name, height) VALUES($1, $2);';
-  const values = [params.name, params.height];
+
+  const queryString = 'INSERT INTO pokemon(name, img, weight, height) VALUES($1, $2);';
+  const values = [params.name, params.img, params.height, params.weight, id];;
 
   pool.query(queryString, values, (err, result) => {
     if (err) {
@@ -197,10 +219,12 @@ app.get('/pokemon/:id/edit', editPokemonForm);
 app.get('/pokemon/new', getNew);
 app.get('/pokemon/:id', getPokemon);
 app.get('/pokemon/:id/delete', deletePokemonForm);
+app.get('/catch/:id', catchPokemon)
 
 app.post('/pokemon', postPokemon);
 
 app.put('/pokemon/:id', updatePokemon);
+app.put('/users/:id', postCatchPokemon);
 
 app.delete('/pokemon/:id', deletePokemon);
 
@@ -232,5 +256,3 @@ function shutDown() {
 
 process.on('SIGTERM', shutDown);
 process.on('SIGINT', shutDown);
-
-
