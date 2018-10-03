@@ -8,6 +8,7 @@ class Home extends React.Component {
         <head />
         <body>
           <h1>Welcome to Pokedex</h1>
+          <a href="/users/catch" class="myButton">Catch Pokmon</a>
           <ul>
             {this.props.pokemon.map(pokemon => (
               <li key={pokemon.id}>
