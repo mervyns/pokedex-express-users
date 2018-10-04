@@ -10,7 +10,7 @@ class Catch extends React.Component {
         <head />
         <body>
           <h1>Catch a Pokemon!</h1>
-            <form className="pokemon-form" method="POST" action="/users/caught">
+            <form className="pokemon-form" method="POST" action="/users/inter">
               <div className="user-id">
               <input
                 name="user_id"

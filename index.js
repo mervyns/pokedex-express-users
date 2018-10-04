@@ -65,7 +65,7 @@ app.engine('jsx', reactEngine);
     if (err) {
       console.error('Query error:', err.stack);
     } else {
-      console.log('Query result:', result);
+      // console.log('Query result:', result);
 
       // redirect to home page
       response.render( 'pokemon/home', {pokemon: result.rows} );
@@ -212,19 +212,18 @@ const pokeCaught = (request, response) => {
 
                 } else {
                   console.log('Query result:', result);
-
-                  response.redirect('/users/caught');
+                  response.redirect('/users/'+request.body.user_id+'/caught');
                 };
-
-        });
+     });
 
 };
 
+
+
 const pokeName = (request, response) => {
 
-    console.log("LATEST POKE", request.body);
 
-    const queryString = `SELECT pokemon.name FROM pokemon INNER JOIN users_pokemon ON (users_pokemon.pokemon_id = pokemon.id) WHERE users_pokemon.user_id = ${request.body.user_id}`;
+    const queryString = `SELECT pokemon.name FROM pokemon INNER JOIN users_pokemon ON (users_pokemon.pokemon_id = pokemon.id) WHERE users_pokemon.user_id = ${request.params.id}`;
 
         pool.query(queryString, (err, result) => {
 
@@ -234,9 +233,9 @@ const pokeName = (request, response) => {
                   response.send('dang it.');
 
                 } else {
-                  console.log('Query result:', result);
+                  console.log('Query result:', result.rows);
 
-                  response.render('users/caught');
+                  response.render('users/caught', {caught: (result.rows)});
                 };
 
         });
@@ -269,8 +268,8 @@ app.delete('/pokemon/:id', deletePokemon);
 app.get('/users/new', userNew);
 app.post('/users', userCreate);
 app.get('/users/:id/catch', userCatch);
-app.post('/users/caught', pokeCaught);
-app.get('/users/caught', pokeName);
+app.post('/users/inter', pokeCaught);
+app.get('/users/:id/caught', pokeName);
 
 
 
