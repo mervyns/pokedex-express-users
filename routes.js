@@ -19,6 +19,9 @@ module.exports = (app, pool) => {
   app.get("/users/new", user.userNew);
   app.get("/users/:id/catch", user.userCatch);
   app.get("/users/:id/caught", user.pokeName);
+  app.get("/users/login", user.userLogin);
+  app.get("/users/logout", user.userLogout);
+  app.post("/users/login", user.userLoginPost);
   app.post("/users", user.userCreate);
   app.post("/users/inter", user.pokeCaught);
 };

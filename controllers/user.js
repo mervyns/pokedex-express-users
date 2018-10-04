@@ -1,12 +1,14 @@
+const sha256 = require("js-sha256");
+
 module.exports = pool => {
   const userNew = (request, response) => {
     response.render("users/new");
   };
 
   const userCreate = (request, response) => {
-    const queryString = "INSERT INTO users (name) VALUES ($1)";
-
-    const values = [request.body.name];
+    const queryString = "INSERT INTO users (name, password) VALUES ($1, $2)";
+    const passwordHash = sha256(request.body.password);
+    const values = [request.body.name, passwordHash];
 
     console.log(queryString);
 
@@ -22,6 +24,36 @@ module.exports = pool => {
     });
     response.redirect("/");
   };
+
+  const userLogin = (req, res) => {
+    res.render("users/login");
+  };
+
+  const userLoginPost = (req, res) => {
+    let queryString = "SELECT * FROM users WHERE name='" + req.body.name + "'";
+    pool.query(queryString, (err, queryResult) => {
+      if (err) {
+        console.error("Query error:", err.stack);
+        response.send("dang it.");
+      } else {
+        const user = queryResult.rows[0];
+        var hashedPass = sha256(req.body.password);
+        if (hashedPass === user.password) {
+          res.cookie("loggedIn", "true");
+          res.cookie('username', user.name)
+          res.redirect("/");
+        } else {
+          res.send("Wrong Password");
+        }
+      }
+    });
+  };
+
+  const userLogout = (req, res) => {
+      res.clearCookie('loggedIn')
+      res.clearCookie('username')
+      res.redirect('/')
+  }
 
   const userCatch = (request, response) => {
     response.render("users/catch", { id: request.params.id });
@@ -67,6 +99,9 @@ module.exports = pool => {
     userCreate,
     userCatch,
     pokeCaught,
-    pokeName
+    pokeName,
+    userLogin,
+    userLoginPost,
+    userLogout
   };
 };
